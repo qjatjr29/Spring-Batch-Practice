@@ -14,6 +14,7 @@ public class JobRequest {
   private String jobName;
   private String jobGroup;
   private String cronExpression;
+  private Boolean isDbConnect;
 
   @Override
   public String toString() {

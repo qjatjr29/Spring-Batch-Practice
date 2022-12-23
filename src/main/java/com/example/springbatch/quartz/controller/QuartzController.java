@@ -5,6 +5,7 @@ import com.example.springbatch.quartz.dto.JobRequest;
 import com.example.springbatch.quartz.dto.JobResponse;
 import com.example.springbatch.quartz.dto.JobResponse.StatusResponse;
 import com.example.springbatch.quartz.job.CronJob;
+import com.example.springbatch.quartz.job.DbJob;
 import com.example.springbatch.quartz.job.SimpleJob;
 import com.example.springbatch.quartz.service.SchedulerServiceImpl;
 import org.quartz.JobKey;
@@ -30,15 +31,14 @@ public class QuartzController {
   @PostMapping("/jobs")
   public ResponseEntity<?> addScheduleJob(@RequestBody JobRequest jobRequest) throws SchedulerException {
 
-    System.out.println("==== request POST ====");
-    System.out.println(jobRequest.toString());
-
     JobKey jobKey = new JobKey(jobRequest.getJobName(), jobRequest.getJobGroup());
 
     if(!schedulerServiceImpl.isJobExist(jobKey)) {
-      if(jobRequest.getCronExpression() == null) {
+      if(jobRequest.getCronExpression() == null && !jobRequest.getIsDbConnect()) {
         schedulerServiceImpl.addJob(jobRequest, SimpleJob.class);
-      } else {
+      }
+      else if(jobRequest.getIsDbConnect()) schedulerServiceImpl.addJob(jobRequest, DbJob.class);
+      else {
         schedulerServiceImpl.addJob(jobRequest, CronJob.class);
       }
     } else {
